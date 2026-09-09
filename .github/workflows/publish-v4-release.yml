@@ -19,26 +19,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat release/verified_b64/part00 \
-              release/verified_b64/part01 \
-              release/verified_b64/part02 \
-              release/verified_b64/part03 \
-              release/verified_b64/part04 \
-              release/verified_b64/part05 \
-              release/verified_b64/part06 \
-              release/verified_b64/part07 \
-              release/verified_b64/part08 \
-              release/verified_b64/part09 \
-              release/verified_b64/part10 \
-              release/verified_b64/part11 > /tmp/source.b64
-
+          cat release/verified_b64/part00 release/verified_b64/part01 release/verified_b64/part02 release/verified_b64/part03 release/verified_b64/part04 release/verified_b64/part05 release/verified_b64/part06 release/verified_b64/part07 release/verified_b64/part08 release/verified_b64/part09 release/verified_b64/part10 release/verified_b64/part11 > /tmp/source.b64
           base64 --decode /tmp/source.b64 > Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
           unzip -t Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
-
           ACTUAL="$(sha256sum Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip | awk '{print $1}')"
           EXPECTED="f8d1b881c92f1e20df0a45db013c2f59ba88b554b81872a7f8c7fdbe488a5676"
           test "$ACTUAL" = "$EXPECTED"
           echo "Verified SHA256: $ACTUAL"
+
+      - name: Prepare release notes
+        shell: bash
+        run: |
+          printf '%s\n' \
+            'First public release of Dynasty Warriors: Strikeforce PS3 Save Editor.' \
+            '' \
+            'Verified target: BLES00825' \
+            'Save payload: decrypted APP.BIN' \
+            'Expected APP.BIN size: 0x48064 (295,012 bytes)' \
+            '' \
+            'Includes officer editing, weapons, storehouse items/materials, city upgrades, collections/unlocks, Story/Requests editing, backups, validation, and the bundled weapon database.' \
+            '' \
+            'Source ZIP is attached to this release.' > /tmp/release-notes.txt
 
       - name: Publish GitHub Release
         env:
@@ -47,20 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           if gh release view v4.0.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "Release v4.0.0 already exists; leaving it unchanged."
+            echo 'Release v4.0.0 already exists; leaving it unchanged.'
             exit 0
           fi
-          gh release create v4.0.0 \
-            Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip \
-            --repo "$GITHUB_REPOSITORY" \
-            --target main \
-            --title "Dynasty Warriors: Strikeforce PS3 Save Editor v4.0.0" \
-            --notes "First public release of Dynasty Warriors: Strikeforce PS3 Save Editor.
-
-Verified target: BLES00825
-Save payload: decrypted APP.BIN
-Expected APP.BIN size: 0x48064 (295,012 bytes)
-
-Includes officer editing, weapons, storehouse items/materials, city upgrades, collections/unlocks, Story/Requests editing, backups, validation, and the bundled weapon database.
-
-Source ZIP is attached to this release."
+          gh release create v4.0.0 Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip --repo "$GITHUB_REPOSITORY" --target main --title 'Dynasty Warriors: Strikeforce PS3 Save Editor v4.0.0' --notes-file /tmp/release-notes.txt
