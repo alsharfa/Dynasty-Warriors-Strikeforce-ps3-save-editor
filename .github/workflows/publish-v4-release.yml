@@ -1,0 +1,48 @@
+name: Publish v4.0.0 Release
+
+on:
+  push:
+    branches:
+      - release-v4.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rebuild exact source ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="release/Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip"
+          cat \
+            "${BASE}.part3.b64.01" \
+            "${BASE}.part3.b64.02" \
+            "${BASE}.part3.b64.03" \
+            "${BASE}.part3.b64.04" > /tmp/source-part3.b64
+          base64 --decode /tmp/source-part3.b64 > /tmp/source-part3.bin
+          cat "${BASE}.part1" "${BASE}.part2" /tmp/source-part3.bin > Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
+          unzip -t Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
+          sha256sum Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v4.0.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release v4.0.0 already exists; leaving it unchanged."
+            exit 0
+          fi
+          gh release create v4.0.0 \
+            Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip \
+            --repo "$GITHUB_REPOSITORY" \
+            --target main \
+            --title "Dynasty Warriors: Strikeforce PS3 Save Editor v4.0.0" \
+            --notes "First public release of Dynasty Warriors: Strikeforce PS3 Save Editor.\n\nVerified target: BLES00825\nSave payload: decrypted APP.BIN\nExpected APP.BIN size: 0x48064 (295,012 bytes)\n\nIncludes officer editing, weapons, storehouse items/materials, city upgrades, collections/unlocks, Story/Requests editing, backups, validation, and the bundled weapon database.\n\nSource ZIP is attached to this release."
