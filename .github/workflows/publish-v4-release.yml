@@ -15,28 +15,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Rebuild and verify source ZIP
+      - name: Rebuild and verify exact source ZIP
         shell: bash
         run: |
           set -euo pipefail
-          BASE="release/Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip"
-          python3 - <<'PY'
-          import base64
-          from pathlib import Path
+          cat release/verified_b64/part00 \
+              release/verified_b64/part01 \
+              release/verified_b64/part02 \
+              release/verified_b64/part03 \
+              release/verified_b64/part04 \
+              release/verified_b64/part05 \
+              release/verified_b64/part06 \
+              release/verified_b64/part07 \
+              release/verified_b64/part08 \
+              release/verified_b64/part09 \
+              release/verified_b64/part10 \
+              release/verified_b64/part11 > /tmp/source.b64
 
-          base = Path('release/Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip')
-          encoded = b''.join(Path(str(base) + f'.part3.b64.{n:02d}').read_bytes() for n in range(1, 5))
-          part3 = base64.b64decode(encoded, validate=False)
-          output = Path('Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip')
-          output.write_bytes(
-              Path(str(base) + '.part1').read_bytes()
-              + Path(str(base) + '.part2').read_bytes()
-              + part3
-          )
-          print(f'Rebuilt {output} ({output.stat().st_size} bytes)')
-          PY
+          base64 --decode /tmp/source.b64 > Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
           unzip -t Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
-          sha256sum Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
+
+          ACTUAL="$(sha256sum Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip | awk '{print $1}')"
+          EXPECTED="f8d1b881c92f1e20df0a45db013c2f59ba88b554b81872a7f8c7fdbe488a5676"
+          test "$ACTUAL" = "$EXPECTED"
+          echo "Verified SHA256: $ACTUAL"
 
       - name: Publish GitHub Release
         env:
@@ -53,4 +55,12 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --target main \
             --title "Dynasty Warriors: Strikeforce PS3 Save Editor v4.0.0" \
-            --notes "First public release of Dynasty Warriors: Strikeforce PS3 Save Editor.\n\nVerified target: BLES00825\nSave payload: decrypted APP.BIN\nExpected APP.BIN size: 0x48064 (295,012 bytes)\n\nIncludes officer editing, weapons, storehouse items/materials, city upgrades, collections/unlocks, Story/Requests editing, backups, validation, and the bundled weapon database.\n\nSource ZIP is attached to this release."
+            --notes "First public release of Dynasty Warriors: Strikeforce PS3 Save Editor.
+
+Verified target: BLES00825
+Save payload: decrypted APP.BIN
+Expected APP.BIN size: 0x48064 (295,012 bytes)
+
+Includes officer editing, weapons, storehouse items/materials, city upgrades, collections/unlocks, Story/Requests editing, backups, validation, and the bundled weapon database.
+
+Source ZIP is attached to this release."
