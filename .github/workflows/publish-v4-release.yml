@@ -15,18 +15,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Rebuild exact source ZIP
+      - name: Rebuild and verify source ZIP
         shell: bash
         run: |
           set -euo pipefail
           BASE="release/Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip"
-          cat \
-            "${BASE}.part3.b64.01" \
-            "${BASE}.part3.b64.02" \
-            "${BASE}.part3.b64.03" \
-            "${BASE}.part3.b64.04" > /tmp/source-part3.b64
-          base64 --decode /tmp/source-part3.b64 > /tmp/source-part3.bin
-          cat "${BASE}.part1" "${BASE}.part2" /tmp/source-part3.bin > Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+
+          base = Path('release/Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip')
+          encoded = b''.join(Path(str(base) + f'.part3.b64.{n:02d}').read_bytes() for n in range(1, 5))
+          part3 = base64.b64decode(encoded, validate=False)
+          output = Path('Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip')
+          output.write_bytes(
+              Path(str(base) + '.part1').read_bytes()
+              + Path(str(base) + '.part2').read_bytes()
+              + part3
+          )
+          print(f'Rebuilt {output} ({output.stat().st_size} bytes)')
+          PY
           unzip -t Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
           sha256sum Dynasty_Warriors_Strikeforce_PS3_Save_Editor_Source.zip
 
