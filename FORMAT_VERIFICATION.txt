@@ -1,0 +1,35 @@
+Dynasty Warriors: Strikeforce PS3 Save Editor - verification notes
+
+Historical evidence recorded for v4.0.0. The original samples are not bundled;
+v4.0.1 packaging checks do not repeat or extend this in-game verification.
+
+
+Target executable supplied for this build:
+  EBOOT(20260909-092543).elf
+  SHA-256: 208d507a8401040d33d90b7e061fb8ae3087cfef3f2cb73419dac47eb0e87bb6
+  Format: ELF64, big-endian PowerPC64 / PS3 PPU
+
+Direct strings verified in that EBOOT:
+  file offset 0x006A6518 : BLES00825
+  file offset 0x006A67F0 : APP.BIN
+  file offset 0x006A67F8 : BLES00825-SAVEDATA
+
+Real APP.BIN samples checked while building v4:
+  APP(20260829-133944).BIN   295,012 bytes
+  APP(20260830-154555).BIN   295,012 bytes
+  APP(20260830-195849).BIN   295,012 bytes
+
+Fixed payload layout used by the editor:
+  APP.BIN total : 0x48064 = 295,012 bytes
+  Slot 1        : 0x00000 .. 0x17FFF
+  Slot 2        : 0x18000 .. 0x2FFFF
+  Slot 3        : 0x30000 .. 0x47FFF
+  Global tail   : 0x48000 .. 0x48063 (0x64 bytes)
+
+The v4 self-test opened all three real sample APP.BIN files, exercised reversible
+writes for gold, officer level, inventory row data, and collection data, then
+restored the original bytes byte-for-byte.
+
+Write-policy change from v3.9:
+  The old experimental Movie mapping is not exposed by v4 REAL and FORCE UNLOCK
+  ALL no longer writes it. The editor keeps unknown/unverified bytes intact.

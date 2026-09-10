@@ -6,6 +6,18 @@
 **Save payload:** decrypted `APP.BIN`  
 **Expected APP.BIN size:** `0x48064` (295,012 bytes)
 
+## Download v4.0.1
+
+Download the **Windows x64 Portable ZIP** from [Releases](https://github.com/alsharfa/Dynasty-Warriors-Strikeforce-ps3-save-editor/releases/latest), extract it, and double-click the EXE. Python is bundled; no installer or command window is needed to run it.
+
+The release also includes a clean **Source ZIP** and **SHA256SUMS.txt**. Each ZIP contains `BUILD_INFO.json` with the exact source commit and file hashes. The previous v4.0.0 release remains available unchanged.
+
+On Windows, compare a ZIP hash with its entry in SHA256SUMS.txt using PowerShell:
+
+```powershell
+Get-FileHash .\Dynasty_Warriors_Strikeforce_PS3_Save_Editor_v4.0.1_Windows_x64_Portable.zip -Algorithm SHA256
+```
+
 ## Features
 
 - Gold editing
@@ -54,21 +66,21 @@ The editor preserves unknown bytes and patches only selected fields. When `PARAM
 
 ## Run without a command window
 
-1. Install Python 3 for Windows with tkinter using the normal Python installer.
-2. Keep `Dynasty_Warriors_Strikeforce_PS3_Save_Editor.pyw` and the `reference` folder together.
+1. Install 64-bit Python 3.12 for Windows with tkinter using the normal Python installer.
+2. Keep `VERSION`, `Dynasty_Warriors_Strikeforce_PS3_Save_Editor.pyw`, and the `reference` folder together.
 3. Double-click `Dynasty_Warriors_Strikeforce_PS3_Save_Editor.pyw`.
 
 `RUN_EDITOR.vbs` is also included as a no-console launcher.
 
 ## Build a portable EXE
 
-Run `BUILD_PORTABLE_EXE.bat`. It installs PyInstaller and builds:
+Run `BUILD_PORTABLE_EXE.bat`. It creates a local virtual environment, installs the pinned PyInstaller version, runs the regression and GUI startup checks, then builds and checks:
 
 ```text
 dist\Dynasty Warriors Strikeforce PS3 Save Editor.exe
 ```
 
-The EXE embeds `reference/00006.bin`.
+The EXE embeds `reference/00006.bin` and `VERSION`. The first build requires internet access. The official Windows x64 release is built and startup-tested on Windows Server 2022 using 64-bit Python 3.12.
 
 ## Save usage
 
@@ -81,7 +93,17 @@ The EXE embeds `reference/00006.bin`.
 
 ## Verification
 
-The current build was verified against the supplied BLES00825 executable and multiple real 295,012-byte `APP.BIN` samples. See `FORMAT_VERIFICATION.txt` for technical notes.
+The v4.0.0 format verification notes record checks against a supplied BLES00825 executable and real 295,012-byte `APP.BIN` samples. See `FORMAT_VERIFICATION.txt` for that historical evidence. These samples are not included in the repository, and v4.0.1 does not claim a new in-game verification.
+
+The v4.0.1 release workflow tests synthetic save round-trips, preservation of other slots/unknown bytes, rejection of truncated saves, and the exact original weapon database hash. It then starts both the source GUI and the actual packaged EXE from a separate directory, checks the version and bundled database, and checks ZIP integrity before publication. Save offsets and editing behavior are unchanged.
+
+## Release maintenance
+
+The repository now contains the actual source. No split archive reconstruction is required. `VERSION` supplies the window title, Windows executable metadata, and release filenames.
+
+Pull requests build and test without publishing. A push to `main` runs the Windows checks, creates the two ZIPs and checksums, and publishes a new version from the exact tested commit. Already published versions are preserved; bump `VERSION` and update `CHANGELOG.md` for a new release. A manual workflow run builds artifacts without publishing.
+
+Only the application, bundled reference database, documentation, build scripts, checks, and workflow are included in the source package. Personal saves, executable game files, temporary output, and obsolete archive chunks are excluded.
 
 ## Related PlayStation Save Editors
 
