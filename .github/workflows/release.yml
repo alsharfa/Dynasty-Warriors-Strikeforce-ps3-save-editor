@@ -83,7 +83,8 @@ jobs:
             echo "$TAG is already published; it will not be modified. Bump VERSION for a new release."
             exit 0
           fi
-          TAG_SHA=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" --jq .object.sha 2>/dev/null || true)
+          TAG_SHA=$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/$TAG" \
+            --jq ".[] | select(.ref == \"refs/tags/$TAG\") | .object.sha")
           if [ -n "$TAG_SHA" ] && [ "$TAG_SHA" != "$GITHUB_SHA" ]; then
             echo "Existing tag points to another commit; refusing to move it."
             exit 1
