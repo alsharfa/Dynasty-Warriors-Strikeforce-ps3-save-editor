@@ -1,6 +1,6 @@
 # Dynasty Warriors: Strikeforce PS3 Save Editor
 
-A save editor for **Dynasty Warriors: Strikeforce** on PlayStation 3.
+**Dynasty Warriors: Strikeforce PS3 Save Editor** is a Windows save-game editor for **Dynasty Warriors: Strikeforce on PlayStation 3 (PS3)**.
 
 **Verified target:** BLES00825  
 **Save payload:** decrypted `APP.BIN`  
@@ -82,6 +82,17 @@ The EXE embeds `reference/00006.bin`.
 ## Verification
 
 The current build was verified against the supplied BLES00825 executable and multiple real 295,012-byte `APP.BIN` samples. See `FORMAT_VERIFICATION.txt` for technical notes.
+
+## Related PlayStation Save Editors
+
+- [Knights Contract PS3 Save Editor](https://github.com/alsharfa/Knights-Contract-PS3-Save-Editor)
+- [Driveclub PS4 Save Editor](https://github.com/alsharfa/Driveclub-PS4-Save-Editor-)
+- [Final Fantasy XIII-2 PS3 Save Editor](https://github.com/alsharfa/Final-Fantasy-XIII-2-PS3-Save-Editor)
+- [PSN Account ID Tool](https://github.com/alsharfa/PSN-Account-ID-Tool)
+
+## Search Terms
+
+Dynasty Warriors Strikeforce PS3 Save Editor · Dynasty Warriors Strikeforce Save Editor · Dynasty Warriors Strikeforce APP.BIN editor · PS3 save editor · PlayStation 3 save editor · BLES00825 save editor
 
 ## Important
 
